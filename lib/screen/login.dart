@@ -82,6 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               return 'Password should be a minimum of 4 characters';
                             }
                           }
+                          return null;
                         },
                         obscureText: true,
                         onChanged: (value) => password = value,
