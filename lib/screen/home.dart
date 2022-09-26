@@ -1,21 +1,33 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
+import 'dart:async';
+
+import 'package:after_layout/after_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
 import 'package:todolist/provider/todo.dart';
 import 'package:todolist/provider/user.dart';
 
 import 'complete.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen>
+    with AfterLayoutMixin<HomeScreen> {
   String description = '';
+
+  bool isInserting = false;
 
   @override
   Widget build(BuildContext context) {
-    Provider.of<TodoProvider>(context, listen: false).getTodos(context);
     return Consumer2<UserProvider, TodoProvider>(
         builder: (context, userProvider, todoProvider, _) {
       return Scaffold(
@@ -86,61 +98,81 @@ class HomeScreen extends StatelessWidget {
                 ),
                 title: Text('HOME'),
               ),
-              const ListTile(
+              ListTile(
                 leading: Icon(
-                  Icons.home,
+                  Icons.logout_outlined,
+                  color: Colors.red,
                 ),
-                title: Text('HOME'),
+                title: Text('Logout'),
+                onTap: () {
+                  userProvider.logout(context);
+                },
               ),
             ],
           ),
         ),
-        body: ListView.builder(
-          itemCount: todoProvider.todos.length,
-          itemBuilder: (BuildContext context, index) {
-            return ListTile(
-              title: Text(todoProvider.todos[index].description),
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            CompleteScreen(todo: todoProvider.todos[index])));
-              },
-            );
-          },
+        body: ModalProgressHUD(
+          inAsyncCall: todoProvider.isloading,
+          child: ListView.builder(
+            itemCount: todoProvider.todos.length,
+            itemBuilder: (BuildContext context, index) {
+              return ListTile(
+                title: Text(todoProvider.todos[index].description),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              CompleteScreen(todo: todoProvider.todos[index])));
+                },
+              );
+            },
+          ),
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             showDialog(
               context: context,
-              builder: (_) => AlertDialog(
-                title: Text('New Task'),
-                content: TextFormField(
-                  onChanged: (value) => description = value,
-                  minLines: 4,
-                  maxLines: 9,
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      todoProvider.add(context, description: description);
-                    },
-                    child: Text('Add'),
+              builder: (_) => StatefulBuilder(builder: (context, setState) {
+                return ModalProgressHUD(
+                  inAsyncCall: isInserting,
+                  child: AlertDialog(
+                    title: Text('New Task'),
+                    content: TextFormField(
+                      onChanged: (value) => description = value,
+                      minLines: 4,
+                      maxLines: 9,
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () async {
+                          setState(() => isInserting = !isInserting);
+                          await todoProvider.add(context,
+                              description: description);
+                          setState(() => isInserting = !isInserting);
+                        },
+                        child: Text('Add'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text('cancel'),
+                      ),
+                    ],
                   ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text('cancel'),
-                  ),
-                ],
-              ),
+                );
+              }),
             );
           },
           child: Icon(Icons.add),
         ),
       );
     });
+  }
+
+  @override
+  FutureOr<void> afterFirstLayout(BuildContext context) {
+    Provider.of<TodoProvider>(context, listen: false).getTodos(context);
   }
 }

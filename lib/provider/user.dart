@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:todolist/models/login.dart';
 import 'package:http/http.dart' as http;
+import 'package:todolist/screen/login.dart';
 import 'package:todolist/screen/registration.dart';
 
 import '../screen/home.dart';
@@ -17,6 +18,14 @@ class UserProvider with ChangeNotifier {
     if (box.read('user') != null) {
       currentUser = UserModel.fromJson(box.read('user'));
     }
+  }
+
+  void logout(BuildContext context) async {
+    await box.remove('user');
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => LoginScreen()),
+        (route) => false);
   }
 
   void updateUser(UserModel user) {

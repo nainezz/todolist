@@ -1,5 +1,5 @@
 class TodoModel {
-  late String _id;
+  late String id;
   late String description;
   late bool completed;
   late DateTime createdAt, updatedAt;
@@ -7,7 +7,8 @@ class TodoModel {
   late String owner;
 
   TodoModel.fromJson(Map<String, dynamic> json) {
-    _id = json['_id'];
+    id = json['_id'];
+
     description = json['description'];
     createdAt = DateTime.parse(json['createdAt']);
     updatedAt = DateTime.parse(json['updatedAt']);
