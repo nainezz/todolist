@@ -12,6 +12,7 @@ import '../screen/home.dart';
 class UserProvider with ChangeNotifier {
   final box = GetStorage();
   late UserModel currentUser;
+  bool isLoading = false;
 
   // Constructor
   UserProvider() {
@@ -39,6 +40,8 @@ class UserProvider with ChangeNotifier {
     required String password,
   }) async {
     try {
+      isLoading = true;
+      notifyListeners();
       var response = await http.post(
         Uri.parse('https://api-nodejs-todolist.herokuapp.com/user/login'),
         headers: {'Content-Type': 'application/json'},
@@ -65,6 +68,9 @@ class UserProvider with ChangeNotifier {
       }
     } catch (e) {
       print(e);
+    } finally {
+      bool isLoading = false;
+      notifyListeners();
     }
   }
 

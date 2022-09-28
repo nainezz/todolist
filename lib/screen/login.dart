@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
+import 'package:todolist/screen/registration.dart';
 
 import '../provider/user.dart';
 
@@ -14,7 +15,6 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String email = '', password = '';
-  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -22,12 +22,18 @@ class _LoginScreenState extends State<LoginScreen> {
       backgroundColor: const Color(0x00181920),
       body: Consumer<UserProvider>(builder: (context, value, _) {
         return ModalProgressHUD(
-          inAsyncCall: isLoading,
+          inAsyncCall: value.isLoading,
           child: Form(
             key: _formKey,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                Icon(
+                  Icons.person,
+                  size: 100,
+                  color: Colors.white,
+                ),
+                SizedBox(height: 20),
                 const Text(
                   'please sign in to you account',
                   style: TextStyle(color: Colors.white),
@@ -102,14 +108,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     onTap: () async {
                       if (_formKey.currentState != null) {
                         if (_formKey.currentState!.validate()) {
-                          setState(() {
-                            isLoading = true;
-                          });
                           await value.login(context,
                               email: email, password: password);
-                          setState(() {
-                            isLoading = false;
-                          });
                         }
                       }
                     },
@@ -131,6 +131,33 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
+                SizedBox(height: 25),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  // ignore: prefer_const_literals_to_create_immutables
+                  children: [
+                    Text(
+                      "dont have an Account?",
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.white),
+                    ),
+                    TextButton(
+                      child: Text(
+                        '  register here',
+                        style: TextStyle(
+                          color: Colors.blue,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => RegisterScreen()));
+                      },
+                    ),
+                  ],
+                )
               ],
             ),
           ),

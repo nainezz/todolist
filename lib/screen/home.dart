@@ -23,7 +23,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen>
     with AfterLayoutMixin<HomeScreen> {
   String description = '';
-
+  bool _ischecked = false;
   bool isInserting = false;
 
   @override
@@ -117,7 +117,22 @@ class _HomeScreenState extends State<HomeScreen>
             itemCount: todoProvider.todos.length,
             itemBuilder: (BuildContext context, index) {
               return ListTile(
-                title: Text(todoProvider.todos[index].description),
+                leading: Checkbox(
+                  value: todoProvider.todos[index].completed,
+                  onChanged: (bool? value) {
+                    setState(() {
+                      // _ischecked = value!;
+                      todoProvider.todos[index].completed = value!;
+                    });
+                  },
+                ),
+                title: Text(
+                  todoProvider.todos[index].description,
+                  style: TextStyle(
+                      decoration: todoProvider.todos[index].completed
+                          ? TextDecoration.lineThrough
+                          : null),
+                ),
                 onTap: () {
                   Navigator.push(
                       context,
@@ -138,11 +153,13 @@ class _HomeScreenState extends State<HomeScreen>
                   inAsyncCall: isInserting,
                   child: AlertDialog(
                     title: Text('New Task'),
-                    content: TextFormField(
-                      onChanged: (value) => description = value,
-                      minLines: 4,
-                      maxLines: 9,
-                    ),
+                    content: TextFormField(onChanged: (value) {
+                      description = value;
+                      minLines:
+                      4;
+                      maxLines:
+                      9;
+                    }),
                     actions: [
                       TextButton(
                         onPressed: () async {
