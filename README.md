@@ -1,5 +1,7 @@
 # ✅ To-Do List App (Flutter + REST API)
 
+**🔗 Live demo:** https://nainezz.github.io/todolist/ (the original API server is offline, so the demo shows the interface only)
+
 A task manager built with **Flutter** that connects to a REST API. Users register, log in and manage their tasks. Every change is saved to the server and secured with a bearer token.
 
 ## Features
